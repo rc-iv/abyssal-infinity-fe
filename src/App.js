@@ -3,6 +3,7 @@ import {useState} from "react";
 import DungeonDisplay from "./components/DungeonDisplay/DungeonDisplay";
 import ReactModal from 'react-modal';
 
+const server = "https://5bd8-68-82-117-156.ngrok-free.app"
 function App() {
     const [isLoading, setIsLoading] = useState(false);
     const [playerName, setPlayerName] = useState('');
@@ -23,7 +24,7 @@ function App() {
     async function createNewGame() {
         setIsLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/new-game', {playerName});
+            const res = await axios.post(`${server}/new-game`, {playerName});
             console.log(res.data);
             setGameState({
                 game: res.data,
@@ -42,7 +43,7 @@ function App() {
         // check if res.data.player_square_contents is a number
 
         try {
-            const res = await axios.post('http://localhost:5000/move', {game_id: gameState.game.id, direction});
+            const res = await axios.post(`${server}/move`, {game_id: gameState.game.id, direction});
             console.log(res.data);
             if (res.data.player_square_contents === 'X') {
                 setGameState((prevState) => ({...prevState, game: res.data}));
@@ -61,7 +62,7 @@ function App() {
     async function getNextLevel() {
         setIsLoading(true);
         try {
-            const res = await axios.get(`http://localhost:5000/next-level?game_id=${gameState.game.id}`);
+            const res = await axios.get(`${server}/next-level?game_id=${gameState.game.id}`);
             console.log(res.data);
             setGameState({
                 game: res.data,
@@ -77,7 +78,7 @@ function App() {
     async function handleAttack(monsterId) {
         setIsLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/attack', {
+            const res = await axios.post(`${server}/attack`, {
                 game_id: gameState.game.id,
                 monster_id: monsterId
             });
@@ -100,7 +101,7 @@ function App() {
     async function handleEquipItem(item, gameId) {
         setIsLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/equip-item', {item, gameId});
+            const res = await axios.post(`${server}/equip-item`, {item, gameId});
             console.log(res.data);
             setGameState((prevState) => ({...prevState, game: res.data}));
         } catch (error) {
@@ -115,7 +116,7 @@ function App() {
         console.log(`gameId: ${gameId}`);
         setIsLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/pack-item', {item, gameId});
+            const res = await axios.post(`${server}/pack-item`, {item, gameId});
             console.log(res.data);
             setGameState((prevState) => ({...prevState, game: res.data}));
         } catch (error) {
