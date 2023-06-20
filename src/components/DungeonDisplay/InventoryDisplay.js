@@ -20,7 +20,7 @@ const InventoryDisplay = ({ equipped, inventory, handleEquipItem, handlePackItem
             <td className="border px-4 py-2">{item.hp}</td>
             <td className="border px-4 py-2">{item.dmg}</td>
             <td className="border px-4 py-2">
-                <button onClick={() => handlePackItem(item, gameId)}>Pack</button>
+                {item.name && <button onClick={() => handlePackItem(item, gameId)}>Pack</button>}
             </td>
         </tr>
     ));

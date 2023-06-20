@@ -4,6 +4,7 @@ import DungeonDisplay from "./components/DungeonDisplay/DungeonDisplay";
 import ReactModal from 'react-modal';
 
 const server = "https://5bd8-68-82-117-156.ngrok-free.app"
+//const server = "http://localhost:5000";
 function App() {
     const [isLoading, setIsLoading] = useState(false);
     const [playerName, setPlayerName] = useState('');
