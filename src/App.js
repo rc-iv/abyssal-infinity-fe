@@ -130,7 +130,7 @@ function App() {
         <div
             className="App bg-gradient-to-r from-black to-gray-900 text-white min-h-screen flex flex-col justify-center items-center">
             <header className="App-header mb-8">
-                <h1 className="text-6xl font-bold">Eternal Depths</h1>
+                <h1 className="text-6xl font-bold">Abyssal Infinity</h1>
             </header>
             {gameStarted ?
                 <>
