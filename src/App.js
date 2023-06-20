@@ -62,7 +62,7 @@ function App() {
     async function getNextLevel() {
         setIsLoading(true);
         try {
-            const res = await axios.get(`${server}/next-level?game_id=${gameState.game.id}`);
+            const res = await axios.post(`${server}/next-level`, {game_id: gameState.game.id});
             console.log(res.data);
             setGameState({
                 game: res.data,
