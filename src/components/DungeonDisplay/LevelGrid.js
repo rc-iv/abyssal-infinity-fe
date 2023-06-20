@@ -2,9 +2,7 @@ import React from 'react';
 
 const LevelGrid = ({ gridData, palette }) => {
   // find the length of grid data
-    const gridLength = gridData.length;
-    console.log(`gridLength: ${gridLength}`);
-    const gridClass = `grid grid-cols-${gridLength} mb-4 w-64 text-xl`;
+    const gridClass = `grid grid-cols-3 mb-4 w-64 text-xl`;
     console.log(`gridClass: ${gridClass}`)
   return (
     <div className={gridClass} style={{backgroundColor: palette.background_colors[2], color: palette.text_colors[1]}}>
