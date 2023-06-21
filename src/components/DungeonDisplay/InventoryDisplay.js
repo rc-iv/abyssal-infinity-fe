@@ -72,7 +72,7 @@ const InventoryDisplay = ({equipped, inventory, handleEquipItem, handlePackItem,
             </div>
             {showModal && (
                 <div
-                    className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 flex justify-center items-center z-50"
+                    className="fixed bottom-0 right-0 w-50 h-50 flex"
                     onClick={closeModal}>
                     <div className="bg-white p-5 rounded-lg shadow-lg">
                         <img src={modalContent} alt="Full size"/>
