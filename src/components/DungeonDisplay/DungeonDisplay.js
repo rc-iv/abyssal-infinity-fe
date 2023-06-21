@@ -1,21 +1,16 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import LevelGrid from "./LevelGrid";
-import DirectionControls from "./DirectionControls";
 import MonsterDisplay from "./MonsterDisplay";
 import PlayerDisplay from "./PlayerDisplay";
 import InventoryDisplay from "./InventoryDisplay";
 
 const MemoizedLevelGrid = React.memo(LevelGrid);
-const MemoizedDirectionControls = React.memo(DirectionControls);
 
 function DungeonDisplay({
                             gameData, palette, handleMove,
                             isNextLevelAvailable, getNextLevel,
-                            isLoading, handleAttack, handleEquipItem, handlePackItem
+                            isLoading, handleAttack, handleEquipItem, handlePackItem, isLoadingNextLevel
                         }) {
-    if (!gameData) {
-        return <p className="text-lg text-red-500">No data yet</p>;
-    }
     const levelData = gameData.level;
     // Calculate availableDirections...
     const availableDirections = [];
@@ -37,7 +32,49 @@ function DungeonDisplay({
         monsterData = levelData.monsters[monsterId];
         console.log(`Monster data: ${JSON.stringify(monsterData)}`);
     }
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            event.preventDefault();
+            switch (event.key) {
+                case 'ArrowUp':
+                    if (availableDirections.includes('north')) {
+                        handleMove('north');
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (availableDirections.includes('east')) {
+                        handleMove('east');
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (availableDirections.includes('south')) {
+                        handleMove('south');
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (availableDirections.includes('west')) {
+                        handleMove('west');
+                    }
+                    break;
+                case ' ':
+                    if (isNextLevelAvailable) {
+                        getNextLevel();
+                    }
+                    if (isMonsterTile) {
+                        handleAttack(monsterId);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
 
+        // Make sure to clean up the event listener when the component is unmounted
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [handleMove, availableDirections, getNextLevel, isNextLevelAvailable, handleAttack, isMonsterTile, monsterId]);
     return (
         <div className="p-4 bg-gray-100 rounded shadow-md"
              style={{
@@ -48,40 +85,39 @@ function DungeonDisplay({
                  justifyContent: 'center',
                  alignItems: 'center'
              }}>
-            <h2 className="text-2xl font-bold mb-2 text-center">{levelData.dungeon.name}</h2>
-            <p className="text-sm mb-4 p-4 rounded shadow-inner" style={{
-                width: '50%',
-                backgroundColor: palette.background_colors[2],
-                color: palette.text_colors[1],
-                fontWeight: 'bold'
-            }}>{levelData.dungeon.backstory}</p>
             <div className="flex flex-row items-center justify-between w-full">
                 <div style={{width: '33%', padding: '1em'}}>
                     {gameData.player && <PlayerDisplay playerData={gameData.player}/>}
                 </div>
-                <div style={{
-                    width: '33%',
-                    padding: '1em',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                    <p className="text-sm mb-4 p-4 rounded shadow-inner" style={{
-                        backgroundColor: palette.background_colors[2],
-                        color: palette.text_colors[1],
-                        fontWeight: 'bold'
-                    }}>{gameData.player_square_description}{exit_description}</p>
-                    <MemoizedLevelGrid gridData={gameData.player_view} palette={palette}/>
-                </div>
+                {isLoadingNextLevel ?
+                    <div className="flex justify-center items-center" style={{width: '33%', padding: '1em'}}>
+                        <div className="loader">
+                            <img src={`${process.env.PUBLIC_URL}/spinner.gif`} alt="Loading..."
+                                 className="w-10 h-10 animate-spin"/>
+                        </div>
+                    </div>
+                    :
+                    <div style={{
+                        width: '33%',
+                        padding: '1em',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <h2 className="text-2xl font-bold mb-2 text-center">{levelData.dungeon.name}</h2>
+                        <p className="text-sm mb-4 p-4 rounded shadow-inner" style={{
+                            backgroundColor: palette.background_colors[2],
+                            color: palette.text_colors[1],
+                            fontWeight: 'bold'
+                        }}>{levelData.dungeon.backstory}</p>
+                        <MemoizedLevelGrid gridData={gameData.player_view} palette={palette}/>
+                    </div>
+                }
                 <div style={{width: '33%', padding: '1em'}}>
                     {monsterData && <MonsterDisplay monsterData={monsterData}/>}
                 </div>
             </div>
-            <MemoizedDirectionControls handleMove={handleMove} handleAttack={handleAttack}
-                                       isMonsterTile={isMonsterTile} availableDirections={availableDirections}
-                                       isNextLevelAvailable={isNextLevelAvailable} getNextLevel={getNextLevel}
-                                       isLoading={isLoading} monsterId={monsterId}/>
             <InventoryDisplay inventory={gameData.player.inventory}
                               equipped={gameData.player.equipped}
                               handleEquipItem={handleEquipItem}

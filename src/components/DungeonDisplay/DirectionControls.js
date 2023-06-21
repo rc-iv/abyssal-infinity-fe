@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 
 function DirectionControls({
                                handleMove,
@@ -10,6 +10,49 @@ function DirectionControls({
                                isMonsterTile,
                                monsterId
                            }) {
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            switch (event.key) {
+                case 'ArrowUp':
+                    if (availableDirections.includes('north')) {
+                        handleMove('north');
+                    }
+                    break;
+                case 'ArrowRight':
+                    if (availableDirections.includes('east')) {
+                        handleMove('east');
+                    }
+                    break;
+                case 'ArrowDown':
+                    if (availableDirections.includes('south')) {
+                        handleMove('south');
+                    }
+                    break;
+                case 'ArrowLeft':
+                    if (availableDirections.includes('west')) {
+                        handleMove('west');
+                    }
+                    break;
+                case ' ':
+                    event.preventDefault();
+                    if (isNextLevelAvailable) {
+                        getNextLevel();
+                    }
+                    if (isMonsterTile) {
+                        handleAttack(monsterId);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+
+        // Make sure to clean up the event listener when the component is unmounted
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [handleMove, availableDirections, getNextLevel, isNextLevelAvailable, handleAttack, isMonsterTile, monsterId]);
     return (
         <div className="flex flex-col items-center justify-center mt-4">
             <button
@@ -41,7 +84,7 @@ function DirectionControls({
                     )
                 }
 
-                {/* The new "Next Level" button */}
+                {/* The "Next Level" button */}
                 {isNextLevelAvailable &&
                     (isLoading ?
                             <img src={`${process.env.PUBLIC_URL}/spinner.gif`} alt="Loading..."

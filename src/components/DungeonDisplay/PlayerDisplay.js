@@ -6,7 +6,7 @@ function PlayerDisplay({playerData, style}) {
     }
     console.log(`playerData: ${JSON.stringify(playerData)}`);
     return (
-        <div className="p-4 bg-blue-400 rounded shadow-md" style={style}>
+        <div className="p-4 bg-blue-800 rounded shadow-md" style={style}>
             <h3 className="text-xl font-bold mb-2">{playerData.name}</h3>
             <p className="text-sm mb-4">Level: {playerData.level}</p>
             <p className="text-sm mb-4">Damage: {playerData.dmg}</p>

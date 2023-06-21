@@ -7,6 +7,7 @@ const server = "https://5bd8-68-82-117-156.ngrok-free.app"
 //const server = "http://localhost:5000";
 function App() {
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingNextLevel, setIsLoadingNextLevel] = useState(false);
     const [playerName, setPlayerName] = useState('');
     const [gameStarted, setGameStarted] = useState(false);
     const [isNextLevelAvailable, setIsNextLevelAvailable] = useState(false);
@@ -62,6 +63,7 @@ function App() {
 
     async function getNextLevel() {
         setIsLoading(true);
+        setIsLoadingNextLevel(true);
         try {
             const res = await axios.post(`${server}/next-level`, {game_id: gameState.game.id});
             console.log(res.data);
@@ -73,6 +75,7 @@ function App() {
             console.error(error);
         } finally {
             setIsLoading(false);
+            setIsLoadingNextLevel(false);
         }
     }
 
@@ -145,6 +148,7 @@ function App() {
                                      handleAttack={handleAttack}
                                      handleEquipItem={handleEquipItem}
                                      handlePackItem={handlePackItem}
+                                     isLoadingNextLevel={isLoadingNextLevel}
                     />}
                 </> :
                 isLoading ?
