@@ -24,7 +24,6 @@ const InventoryDisplay = ({equipped, inventory, handleEquipItem, handlePackItem,
                     onMouseLeave={closeModal}
                 />
             </td>
-            <td className="border px-4 py-2">{item.slot}</td>
             <td className="border px-4 py-2">{item.name}</td>
             <td className="border px-4 py-2">{item.hp}</td>
             <td className="border px-4 py-2">{item.dmg}</td>
@@ -36,7 +35,16 @@ const InventoryDisplay = ({equipped, inventory, handleEquipItem, handlePackItem,
 
     const equippedItems = Object.entries(equipped).map(([key, item]) => (
         <tr key={key}>
-            <td className="border px-4 py-2">{item.slot}</td>
+            <td className="border px-4 py-2">
+                <img
+                    src={item.image}
+                    alt={item.name}
+                    width="50"
+                    height="50"
+                    onMouseEnter={() => openModal(item.image)}
+                    onMouseLeave={closeModal}
+                />
+            </td>
             <td className="border px-4 py-2">{item.name}</td>
             <td className="border px-4 py-2">{item.hp}</td>
             <td className="border px-4 py-2">{item.dmg}</td>
@@ -47,12 +55,17 @@ const InventoryDisplay = ({equipped, inventory, handleEquipItem, handlePackItem,
     ));
 
     return (
-        <div className="p-10 rounded shadow-lg flex justify-between">
+        <div className="p-0 rounded shadow-lg flex justify-between">
             <div className="w-1/2 mr-2">
                 <h2 className="font-bold text-lg mb-4">Equipped</h2>
                 <table className="table-auto w-full mb-10">
                     <thead>
-                    {/* existing code... */}
+                    <tr>
+                        <th className="px-4 py-2">Image</th>
+                        <th className="px-4 py-2">Name</th>
+                        <th className="px-4 py-2">HP</th>
+                        <th className="px-4 py-2">DMG</th>
+                    </tr>
                     </thead>
                     <tbody>
                     {equippedItems}
@@ -63,7 +76,12 @@ const InventoryDisplay = ({equipped, inventory, handleEquipItem, handlePackItem,
                 <h2 className="font-bold text-lg mb-4">Inventory</h2>
                 <table className="table-auto w-full">
                     <thead>
-                    {/* existing code... */}
+                    <tr>
+                        <th className="px-4 py-2">Image</th>
+                        <th className="px-4 py-2">Name</th>
+                        <th className="px-4 py-2">HP</th>
+                        <th className="px-4 py-2">DMG</th>
+                    </tr>
                     </thead>
                     <tbody>
                     {inventoryItems}
