@@ -141,11 +141,14 @@ function App() {
                     />}
                 </> :
                 isLoading ?
-                    <div>
-                    <img src={`${process.env.PUBLIC_URL}/spinner.gif`} alt="Loading..."
-                         className="w-12 h-12 animate-spin"/>
-                        <p>Welcome to Abyssal Infinity! Use the arrow keys to move. Find the "X" to move to the next level.</p>
+                    //center this div
+                    <div className="flex flex-col justify-center items-center">
+                        <img src={`${process.env.PUBLIC_URL}/spinner.gif`} alt="Loading..."
+                             className="w-12 h-12 animate-spin"/>
+                        <p>Welcome to Abyssal Infinity! Use the arrow keys to move. Find the "X" to move to the next
+                            level.</p>
                         <p>I'm constantly updating, may be unstable at times!</p>
+                        <p>I apologize for the long initial loading time. Working on cutting this down!</p>
                     </div>
                     :
                     <>
@@ -169,7 +172,10 @@ function App() {
                 <h2>Game Over</h2>
                 <p>Last Level cleared: {lastLevelCleared}</p>
                 {combatLog.map((log, index) => <p key={index}>{log}</p>)}
-                <button className="absolute bottom-0 left-0 m-2 py-1 px-3 bg-blue-500 text-white rounded hover:bg-blue-700" onClick={() => setIsGameOver(false)}>Close</button>
+                <button
+                    className="absolute bottom-0 left-0 m-2 py-1 px-3 bg-blue-500 text-white rounded hover:bg-blue-700"
+                    onClick={() => setIsGameOver(false)}>Close
+                </button>
             </ReactModal>
         </div>
     );
