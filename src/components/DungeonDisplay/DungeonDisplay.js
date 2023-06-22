@@ -3,6 +3,7 @@ import LevelGrid from "./LevelGrid";
 import MonsterDisplay from "./MonsterDisplay";
 import PlayerDisplay from "./PlayerDisplay";
 import InventoryDisplay from "./InventoryDisplay";
+import HealerDisplay from "./HealerDisplay";
 
 const MemoizedLevelGrid = React.memo(LevelGrid);
 
@@ -10,7 +11,8 @@ function DungeonDisplay({
                             gameData, palette, handleMove,
                             isNextLevelAvailable, getNextLevel,
                             handleAttack, handleEquipItem,
-                            handlePackItem, isLoadingNextLevel
+                            handlePackItem, isLoadingNextLevel,
+                            handleHeal
                         }) {
     const levelData = gameData.level;
     // Calculate availableDirections...
@@ -42,6 +44,8 @@ function DungeonDisplay({
         // remove all exits, player must engage or retreat
         availableDirections.splice(0, availableDirections.length);
     }
+    const isHealerTile = gameData.player_square_contents === 'H';
+
     useEffect(() => {
         const handleKeyDown = (event) => {
             switch (event.key) {
@@ -129,6 +133,8 @@ function DungeonDisplay({
                     </div>
                 }
                 <div style={{width: '33%', padding: '1em'}}>
+                    {isHealerTile &&
+                        <HealerDisplay handleHeal={handleHeal}/>}
                     {monsterData &&
                         <MonsterDisplay
                             monsterData={monsterData}

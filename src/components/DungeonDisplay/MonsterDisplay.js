@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 
-function MonsterDisplay({monsterData, style, handleMove, handleAttack, monster_id}) {
+function MonsterDisplay({monsterData, handleMove, handleAttack, monster_id}) {
     useEffect(() => {
         const handleKeyDown = (event) => {
             switch (event.key) {
@@ -24,7 +24,7 @@ function MonsterDisplay({monsterData, style, handleMove, handleAttack, monster_i
         };
     }, [handleMove, handleAttack]);
     return (
-        <div className="p-4 bg-red-800 rounded shadow-md relative" style={style}>
+        <div className="p-4 bg-red-800 rounded shadow-md relative">
             <h3 className="text-xl font-bold mb-2">{monsterData.name}</h3>
             <p className="text-sm mb-4">{monsterData.description}</p>
             <p className="text-sm mb-4">HP: {monsterData.hp}</p>

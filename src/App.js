@@ -119,6 +119,17 @@ function App() {
         }
     }
 
+    async function handleHeal(gameId) {
+        setIsLoading(true);
+        try {
+            const res = await axios.post(`${server}/heal`, {gameId});
+            setGameState((prevState) => ({...prevState, game: res.data}));
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
     return (
         <div
@@ -138,6 +149,7 @@ function App() {
                                      handleEquipItem={handleEquipItem}
                                      handlePackItem={handlePackItem}
                                      isLoadingNextLevel={isLoadingNextLevel}
+                                     handleHeal={handleHeal}
                     />}
                 </> :
                 isLoading ?
