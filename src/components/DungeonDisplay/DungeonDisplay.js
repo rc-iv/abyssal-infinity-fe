@@ -19,7 +19,6 @@ function DungeonDisplay({
     const availableDirections = [];
     const playerView = gameData.player_view;
     const center = Math.floor(playerView.length / 2);
-    console.log(`playerView: ${JSON.stringify(playerView)}`);
 
     if (playerView[center - 1][center] !== '#') availableDirections.push('north');
     if (playerView[center + 1][center] !== '#') availableDirections.push('south');
@@ -40,7 +39,6 @@ function DungeonDisplay({
     if (isMonsterTile) {
         monsterId = parseInt(gameData.player_square_contents) - 1;
         monsterData = levelData.monsters[monsterId];
-        console.log(`Monster data: ${JSON.stringify(monsterData)}`);
         // remove all exits, player must engage or retreat
         availableDirections.splice(0, availableDirections.length);
     }
@@ -134,7 +132,10 @@ function DungeonDisplay({
                 }
                 <div style={{width: '33%', padding: '1em'}}>
                     {isHealerTile &&
-                        <HealerDisplay handleHeal={handleHeal}/>}
+                        <HealerDisplay
+                            handleHeal={handleHeal}
+                            gameData={gameData}
+                        />}
                     {monsterData &&
                         <MonsterDisplay
                             monsterData={monsterData}

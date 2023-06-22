@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 
 function HealerDisplay({gameData, handleHeal}) {
-    const heal_cost = gameData.level.dungeon.level * 100;
+    const heal_cost = gameData.player.heals_used * 100;
     const can_afford_healing = gameData.player.gold >= heal_cost;
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -28,9 +28,10 @@ function HealerDisplay({gameData, handleHeal}) {
             <p className="text-sm mb-4">The cost to heal is {heal_cost}</p>
             {can_afford_healing &&
             <div>
+                <p>.</p>
                 <button
                     className="absolute bottom-0 left-0 m-2 py-1 px-3 bg-blue-500 text-white rounded hover:bg-blue-700"
-                    onClick={() => handleHeal()}>Heal
+                    onClick={() => handleHeal(gameData.id)}>Heal
                 </button>
             </div>
             }

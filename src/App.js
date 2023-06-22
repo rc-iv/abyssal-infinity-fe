@@ -3,7 +3,7 @@ import {useState} from "react";
 import DungeonDisplay from "./components/DungeonDisplay/DungeonDisplay";
 import ReactModal from 'react-modal';
 
-const server = "https://5bd8-68-82-117-156.ngrok-free.app"
+const server = "https://7fb1-68-82-117-156.ngrok-free.app"
 
 //const server = "http://localhost:5000";
 function App() {
@@ -122,7 +122,7 @@ function App() {
     async function handleHeal(gameId) {
         setIsLoading(true);
         try {
-            const res = await axios.post(`${server}/heal`, {gameId});
+            const res = await axios.post(`${server}/heal`, {game_id:gameId});
             setGameState((prevState) => ({...prevState, game: res.data}));
         } catch (error) {
             console.error(error);

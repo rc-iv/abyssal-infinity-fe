@@ -4,7 +4,6 @@ function PlayerDisplay({playerData, style}) {
     if (!playerData) {
         return null; // If there's no player data, don't render anything
     }
-    console.log(`playerData: ${JSON.stringify(playerData)}`);
     return (
         <div className="p-4 bg-blue-800 rounded shadow-md" style={style}>
             <h3 className="text-xl font-bold mb-2">{playerData.name}</h3>
