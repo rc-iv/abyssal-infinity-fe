@@ -44,29 +44,33 @@ function DungeonDisplay({
     }
     useEffect(() => {
         const handleKeyDown = (event) => {
-            event.preventDefault();
             switch (event.key) {
                 case 'ArrowUp':
+                    event.preventDefault();
                     if (availableDirections.includes('north')) {
                         handleMove('north');
                     }
                     break;
                 case 'ArrowRight':
+                    event.preventDefault();
                     if (availableDirections.includes('east')) {
                         handleMove('east');
                     }
                     break;
                 case 'ArrowDown':
+                    event.preventDefault();
                     if (availableDirections.includes('south')) {
                         handleMove('south');
                     }
                     break;
                 case 'ArrowLeft':
+                    event.preventDefault();
                     if (availableDirections.includes('west')) {
                         handleMove('west');
                     }
                     break;
                 case ' ':
+                    event.preventDefault();
                     if (isNextLevelAvailable) {
                         getNextLevel();
                     }
@@ -138,8 +142,6 @@ function DungeonDisplay({
                         </div>}
                     {/*If isNextLevelAvailable is true, render "Press Space to go to next level*/}
                     {isNextLevelAvailable && !isLoadingNextLevel && <p>Press Space to go to next level</p>}
-                    {isLoadingNextLevel && <img src={`${process.env.PUBLIC_URL}/spinner.gif`} alt="Loading..."
-                                                className="w-10 h-10 animate-spin"/>}
 
                 </div>
             </div>

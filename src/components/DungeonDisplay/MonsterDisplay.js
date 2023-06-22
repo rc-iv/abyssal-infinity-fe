@@ -3,12 +3,13 @@ import React, {useEffect} from 'react';
 function MonsterDisplay({monsterData, style, handleMove, handleAttack, monster_id}) {
     useEffect(() => {
         const handleKeyDown = (event) => {
-            event.preventDefault();
             switch (event.key) {
                 case 'r':
+                    event.preventDefault();
                     handleMove('retreat');
                     break;
                 case 'a':
+                    event.preventDefault();
                     handleAttack(monster_id);
                     break;
                 default:
