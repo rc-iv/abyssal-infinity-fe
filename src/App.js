@@ -4,6 +4,7 @@ import DungeonDisplay from "./components/DungeonDisplay/DungeonDisplay";
 import ReactModal from 'react-modal';
 
 const server = "https://5bd8-68-82-117-156.ngrok-free.app"
+
 //const server = "http://localhost:5000";
 function App() {
     const [isLoading, setIsLoading] = useState(false);
@@ -13,21 +14,17 @@ function App() {
     const [isNextLevelAvailable, setIsNextLevelAvailable] = useState(false);
     const [isGameOver, setIsGameOver] = useState(false);
     const [lastLevelCleared, setLastLevelCleared] = useState(0);
+    const [combatLog, setCombatLog] = useState([]);
     const [gameState, setGameState] = useState({
         game: null,
         palette: {background_colors: [], text_colors: []},
     });
 
 
-    console.log(`palette: ${JSON.stringify(gameState.palette)}`);
-    console.log(`game: ${JSON.stringify(gameState.game)}`);
-    console.log(`gameStarted: ${gameStarted}`);
-
     async function createNewGame() {
         setIsLoading(true);
         try {
             const res = await axios.post(`${server}/new-game`, {playerName});
-            console.log(res.data);
             setGameState({
                 game: res.data,
                 palette: res.data.level.dungeon.color_palette,
@@ -42,11 +39,8 @@ function App() {
 
     async function handleMove(direction) {
         setIsLoading(true);
-        // check if res.data.player_square_contents is a number
-
         try {
             const res = await axios.post(`${server}/move`, {game_id: gameState.game.id, direction});
-            console.log(res.data);
             if (res.data.player_square_contents === 'X') {
                 setGameState((prevState) => ({...prevState, game: res.data}));
                 setIsNextLevelAvailable(true);
@@ -66,7 +60,6 @@ function App() {
         setIsLoadingNextLevel(true);
         try {
             const res = await axios.post(`${server}/next-level`, {game_id: gameState.game.id});
-            console.log(res.data);
             setGameState({
                 game: res.data,
                 palette: res.data.level.dungeon.color_palette,
@@ -88,12 +81,12 @@ function App() {
             });
             if (res.data.message === 'Game Over') {
                 setIsGameOver(true);
-                setLastLevelCleared(res.data.lastLevelCleared)
+                setLastLevelCleared(res.data.last_level_cleared)
+                setCombatLog(res.data.combat_log);
                 setGameStarted(false);
                 setPlayerName(''); // Reset player name
                 return;
             }
-            console.log(res.data);
             setGameState((prevState) => ({...prevState, game: res.data}));
         } catch (error) {
             console.error(error);
@@ -106,7 +99,6 @@ function App() {
         setIsLoading(true);
         try {
             const res = await axios.post(`${server}/equip-item`, {item, gameId});
-            console.log(res.data);
             setGameState((prevState) => ({...prevState, game: res.data}));
         } catch (error) {
             console.error(error);
@@ -116,12 +108,9 @@ function App() {
     }
 
     async function handlePackItem(item, gameId) {
-        console.log(`item: ${item}`);
-        console.log(`gameId: ${gameId}`);
         setIsLoading(true);
         try {
             const res = await axios.post(`${server}/pack-item`, {item, gameId});
-            console.log(res.data);
             setGameState((prevState) => ({...prevState, game: res.data}));
         } catch (error) {
             console.error(error);
@@ -175,6 +164,7 @@ function App() {
             <ReactModal isOpen={isGameOver}>
                 <h2>Game Over</h2>
                 <p>Last Level cleared: {lastLevelCleared}</p>
+                {combatLog.map((log, index) => <p key={index}>{log}</p>)}
                 <button onClick={() => setIsGameOver(false)}>Close</button>
             </ReactModal>
         </div>

@@ -9,7 +9,8 @@ const MemoizedLevelGrid = React.memo(LevelGrid);
 function DungeonDisplay({
                             gameData, palette, handleMove,
                             isNextLevelAvailable, getNextLevel,
-                            isLoading, handleAttack, handleEquipItem, handlePackItem, isLoadingNextLevel
+                            handleAttack, handleEquipItem,
+                            handlePackItem, isLoadingNextLevel
                         }) {
     const levelData = gameData.level;
     // Calculate availableDirections...
@@ -23,14 +24,23 @@ function DungeonDisplay({
     if (playerView[center][center - 1] !== '#') availableDirections.push('west');
     if (playerView[center][center + 1] !== '#') availableDirections.push('east');
 
+    let combat_log = [];
+    if (gameData.combat_just_ended) {
+        let combat_id = 0;
+        while (gameData.combat_log[combat_id]) {
+            combat_id++;
+        }
+        combat_log = gameData.combat_log[combat_id - 1].combat_messages;
+    }
     let monsterId = null;
     let monsterData = null;
-    const exit_description = `There are exits to the: ${availableDirections.join(', ')}.`;
     const isMonsterTile = !isNaN(gameData.player_square_contents) && !(gameData.player_square_contents === "");
     if (isMonsterTile) {
         monsterId = parseInt(gameData.player_square_contents) - 1;
         monsterData = levelData.monsters[monsterId];
         console.log(`Monster data: ${JSON.stringify(monsterData)}`);
+        // remove all exits, player must engage or retreat
+        availableDirections.splice(0, availableDirections.length);
     }
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -115,7 +125,22 @@ function DungeonDisplay({
                     </div>
                 }
                 <div style={{width: '33%', padding: '1em'}}>
-                    {monsterData && <MonsterDisplay monsterData={monsterData}/>}
+                    {monsterData &&
+                        <MonsterDisplay
+                            monsterData={monsterData}
+                            handleMove={handleMove}
+                            handleAttack={handleAttack}
+                            monster_id={monsterId}
+                        />}
+                    {gameData.combat_just_ended &&
+                        <div style={{height: '300px', overflowY: 'auto'}}>
+                            {combat_log.map((log, index) => <p key={index}>{log}</p>)}
+                        </div>}
+                    {/*If isNextLevelAvailable is true, render "Press Space to go to next level*/}
+                    {isNextLevelAvailable && !isLoadingNextLevel && <p>Press Space to go to next level</p>}
+                    {isLoadingNextLevel && <img src={`${process.env.PUBLIC_URL}/spinner.gif`} alt="Loading..."
+                                                className="w-10 h-10 animate-spin"/>}
+
                 </div>
             </div>
             <InventoryDisplay inventory={gameData.player.inventory}
