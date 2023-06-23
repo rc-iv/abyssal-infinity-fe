@@ -8,7 +8,7 @@ function HealerDisplay({gameData, handleHeal}) {
             switch (event.key) {
                 case 'h':
                     event.preventDefault();
-                    handleHeal();
+                    handleHeal(gameData.id);
                     break;
                 default:
                     break;
@@ -31,7 +31,7 @@ function HealerDisplay({gameData, handleHeal}) {
                 <p>.</p>
                 <button
                     className="absolute bottom-0 left-0 m-2 py-1 px-3 bg-blue-500 text-white rounded hover:bg-blue-700"
-                    onClick={() => handleHeal(gameData.id)}>Heal
+                    onClick={() => handleHeal(gameData.id)}>(H)eal
                 </button>
             </div>
             }
