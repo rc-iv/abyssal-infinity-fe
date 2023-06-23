@@ -24,12 +24,6 @@ function App() {
     async function createNewGame() {
         setIsLoading(true);
         try {
-            // Send a dummy request to skip ngrok landing page
-            await axios.get("https://b71f-68-82-117-156.ngrok-free.app/api/images/Enforcer's_Blaster.png", {
-                headers: {
-                    'ngrok-skip-browser-warning': '1'
-                }
-            });
             const res = await axios.post(`${server}/new-game`, {playerName});
             setGameState({
                 game: res.data,
