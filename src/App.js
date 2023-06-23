@@ -3,7 +3,7 @@ import {useState} from "react";
 import DungeonDisplay from "./components/DungeonDisplay/DungeonDisplay";
 import ReactModal from 'react-modal';
 
-const server = "https://b71f-68-82-117-156.ngrok-free.app"
+const server = "https://529c2997452b.ngrok.app"
 
 //const server = "http://localhost:5000";
 function App() {
@@ -24,6 +24,12 @@ function App() {
     async function createNewGame() {
         setIsLoading(true);
         try {
+            // Send a dummy request to skip ngrok landing page
+            await axios.get("https://b71f-68-82-117-156.ngrok-free.app/api/images/Enforcer's_Blaster.png", {
+                headers: {
+                    'ngrok-skip-browser-warning': '1'
+                }
+            });
             const res = await axios.post(`${server}/new-game`, {playerName});
             setGameState({
                 game: res.data,
@@ -122,7 +128,7 @@ function App() {
     async function handleHeal(gameId) {
         setIsLoading(true);
         try {
-            const res = await axios.post(`${server}/heal`, {game_id:gameId});
+            const res = await axios.post(`${server}/heal`, {game_id: gameId});
             setGameState((prevState) => ({...prevState, game: res.data}));
         } catch (error) {
             console.error(error);
