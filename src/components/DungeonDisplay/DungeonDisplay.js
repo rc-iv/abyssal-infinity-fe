@@ -103,7 +103,13 @@ function DungeonDisplay({
              }}>
             <div className="flex flex-row items-center justify-between w-full">
                 <div style={{width: '33%', padding: '1em'}}>
-                    {gameData.player && <PlayerDisplay playerData={gameData.player}/>}
+                    {gameData.player && <PlayerDisplay playerData={gameData.player} handlePackItem={handlePackItem}
+                                                       gameId={gameData.id}/>}
+                    <InventoryDisplay inventory={gameData.player.inventory}
+                                      handleEquipItem={handleEquipItem}
+                                      equipped={gameData.player.equipped}
+                                      gameId={gameData.id}
+                    />
                 </div>
                 {isLoadingNextLevel ?
                     <div className="flex justify-center items-center" style={{width: '33%', padding: '1em'}}>
@@ -127,7 +133,9 @@ function DungeonDisplay({
                             color: palette.text_colors[1],
                             fontWeight: 'bold'
                         }}>{levelData.dungeon.backstory}</p>
-                        <MemoizedLevelGrid gridData={gameData.player_view} palette={palette} monsters = {levelData.monsters}/>
+                        <MemoizedLevelGrid gridData={gameData.player_view} palette={palette}
+                                           monsters={levelData.monsters}/>
+                        <p>Monsers Remaining: {gameData.monsters_remaining}</p>
                     </div>
                 }
                 <div style={{width: '33%', padding: '1em'}}>
@@ -152,12 +160,6 @@ function DungeonDisplay({
 
                 </div>
             </div>
-            <InventoryDisplay inventory={gameData.player.inventory}
-                              equipped={gameData.player.equipped}
-                              handleEquipItem={handleEquipItem}
-                              handlePackItem={handlePackItem}
-                              gameId={gameData.id}
-            />
         </div>
     );
 

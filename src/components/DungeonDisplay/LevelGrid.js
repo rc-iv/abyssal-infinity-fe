@@ -20,10 +20,6 @@ const LevelGrid = ({gridData, palette, monsters}) => {
             default:
                 if (!isNaN(cell)) {
                     const cell_int = parseInt(cell) - 1;
-                    console.log(`cell_int: ${cell_int}`);
-                    console.log(`monsters : ${monsters}`);
-                    console.log(`monsters[cell_int]: ${JSON.stringify(monsters[cell_int])}`);
-                    console.log(`monsters[cell_int].image: ${monsters[cell_int].imageURL}`);
                     const imageURL = monsters[cell_int].imageURL;
                     if (imageURL === null) {
                         return "https://d76fab24d4c1.ngrok.app/api/images/monsters/skull.png";
