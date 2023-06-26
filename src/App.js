@@ -3,7 +3,7 @@ import {useState} from "react";
 import DungeonDisplay from "./components/DungeonDisplay/DungeonDisplay";
 import ReactModal from 'react-modal';
 
-const server = "https://529c2997452b.ngrok.app"
+const server = "https://d76fab24d4c1.ngrok.app"
 
 //const server = "http://localhost:5000";
 function App() {
