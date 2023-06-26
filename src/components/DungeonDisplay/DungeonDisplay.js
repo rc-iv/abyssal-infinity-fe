@@ -127,7 +127,7 @@ function DungeonDisplay({
                             color: palette.text_colors[1],
                             fontWeight: 'bold'
                         }}>{levelData.dungeon.backstory}</p>
-                        <MemoizedLevelGrid gridData={gameData.player_view} palette={palette}/>
+                        <MemoizedLevelGrid gridData={gameData.player_view} palette={palette} monsters = {levelData.monsters}/>
                     </div>
                 }
                 <div style={{width: '33%', padding: '1em'}}>

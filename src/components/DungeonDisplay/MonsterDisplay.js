@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 
 function MonsterDisplay({monsterData, handleMove, handleAttack, monster_id}) {
     useEffect(() => {
+        const monster_int = parseInt(monster_id);
         const handleKeyDown = (event) => {
             switch (event.key) {
                 case 'r':
@@ -25,6 +26,7 @@ function MonsterDisplay({monsterData, handleMove, handleAttack, monster_id}) {
     }, [handleMove, handleAttack]);
     return (
         <div className="p-4 bg-red-800 rounded shadow-md relative">
+            <img src = {monsterData.imageURL} alt = {monsterData.name} />
             <h3 className="text-xl font-bold mb-2">{monsterData.name}</h3>
             <p className="text-sm mb-4">{monsterData.description}</p>
             <p className="text-sm mb-4">HP: {monsterData.hp}</p>
