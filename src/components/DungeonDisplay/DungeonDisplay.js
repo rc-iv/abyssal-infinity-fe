@@ -4,6 +4,7 @@ import MonsterDisplay from "./MonsterDisplay";
 import PlayerDisplay from "./PlayerDisplay";
 import InventoryDisplay from "./InventoryDisplay";
 import HealerDisplay from "./HealerDisplay";
+import MerchantDisplay from "./MerchantDisplay";
 
 const MemoizedLevelGrid = React.memo(LevelGrid);
 
@@ -12,14 +13,14 @@ function DungeonDisplay({
                             isNextLevelAvailable, getNextLevel,
                             handleAttack, handleEquipItem,
                             handlePackItem, isLoadingNextLevel,
-                            handleHeal
+                            handleHeal, handleSell, handleBuy
                         }) {
     const levelData = gameData.level;
     // Calculate availableDirections...
     const availableDirections = [];
     const playerView = gameData.player_view;
     const center = Math.floor(playerView.length / 2);
-
+    console.log(`player : ${JSON.stringify(gameData.player)}`)
     if (playerView[center - 1][center] !== '#') availableDirections.push('north');
     if (playerView[center + 1][center] !== '#') availableDirections.push('south');
     if (playerView[center][center - 1] !== '#') availableDirections.push('west');
@@ -43,6 +44,7 @@ function DungeonDisplay({
         availableDirections.splice(0, availableDirections.length);
     }
     const isHealerTile = gameData.player_square_contents === 'H';
+    const isMerchantTile = gameData.player_square_contents === 'M';
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -103,12 +105,18 @@ function DungeonDisplay({
              }}>
             <div className="flex flex-row items-center justify-between w-full">
                 <div style={{width: '33%', padding: '1em'}}>
-                    {gameData.player && <PlayerDisplay playerData={gameData.player} handlePackItem={handlePackItem}
-                                                       gameId={gameData.id}/>}
+                    {gameData.player && <PlayerDisplay playerData={gameData.player}
+                                                       handlePackItem={handlePackItem}
+                                                       gameId={gameData.id}
+                                                       isAtMerchant={isMerchantTile}
+                                                       handleSell={handleSell}
+                    />}
                     <InventoryDisplay inventory={gameData.player.inventory}
                                       handleEquipItem={handleEquipItem}
                                       equipped={gameData.player.equipped}
                                       gameId={gameData.id}
+                                      isAtMerchant={isMerchantTile}
+                                      handleSell={handleSell}
                     />
                 </div>
                 {isLoadingNextLevel ?
@@ -135,13 +143,18 @@ function DungeonDisplay({
                         }}>{levelData.dungeon.backstory}</p>
                         <MemoizedLevelGrid gridData={gameData.player_view} palette={palette}
                                            monsters={levelData.monsters}/>
-                        <p>Monsers Remaining: {gameData.monsters_remaining}</p>
+                        <p>Monsters Remaining: {gameData.monsters_remaining}</p>
                     </div>
                 }
                 <div style={{width: '33%', padding: '1em'}}>
                     {isHealerTile &&
                         <HealerDisplay
                             handleHeal={handleHeal}
+                            gameData={gameData}
+                        />}
+                    {isMerchantTile &&
+                        <MerchantDisplay
+                            handleBuy={handleBuy}
                             gameData={gameData}
                         />}
                     {monsterData &&

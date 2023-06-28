@@ -17,6 +17,8 @@ const LevelGrid = ({gridData, palette, monsters}) => {
                 return `${NGROK_PATH}/api/images/board/exit_portal.png`;
             case "H":
                 return `${NGROK_PATH}/api/images/board/healer.png`;
+            case "M":
+                return `${NGROK_PATH}/api/images/board/merchant.png`;
             default:
                 if (!isNaN(cell)) {
                     const cell_int = parseInt(cell) - 1;

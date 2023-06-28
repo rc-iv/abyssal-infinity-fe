@@ -131,6 +131,29 @@ function App() {
         }
     }
 
+    async function handleSell(item, gameId) {
+        setIsLoading(true);
+        try {
+            const res = await axios.post(`${server}/sell`, {gameId: gameId, item: item});
+            setGameState((prevState) => ({...prevState, game: res.data}));
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    async function handleBuy(item, gameId) {
+        setIsLoading(true);
+        try {
+            const res = await axios.post(`${server}/buy`, {gameId: gameId, item: item});
+            setGameState((prevState) => ({...prevState, game: res.data}));
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
     return (
         <div
             className="App bg-gradient-to-r from-black to-gray-900 text-white min-h-screen flex flex-col justify-center items-center">
@@ -150,6 +173,8 @@ function App() {
                                      handlePackItem={handlePackItem}
                                      isLoadingNextLevel={isLoadingNextLevel}
                                      handleHeal={handleHeal}
+                                     handleBuy={handleBuy}
+                                     handleSell={handleSell}
                     />}
                 </> :
                 isLoading ?
@@ -157,10 +182,6 @@ function App() {
                     <div className="flex flex-col justify-center items-center">
                         <img src={`${process.env.PUBLIC_URL}/spinner.gif`} alt="Loading..."
                              className="w-12 h-12 animate-spin"/>
-                        <p>Welcome to Abyssal Infinity! Use the arrow keys to move. Find the "X" to move to the next
-                            level.</p>
-                        <p>I'm constantly updating, may be unstable at times!</p>
-                        <p>I apologize for the long initial loading time. Working on cutting this down!</p>
                     </div>
                     :
                     <>
