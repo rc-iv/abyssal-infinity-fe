@@ -23,14 +23,8 @@ const InventoryDisplay = ({inventory, equipped, handleEquipItem, gameId, isAtMer
 
     let rows = [];
     let cells = [];
-    let click_handler = null;
 
     paddedInventory.forEach((item, index) => {
-        if (isAtMerchant) {
-            click_handler = () => handleSell(item, gameId)
-        } else {
-            click_handler = () => handleEquipItem(item, gameId)
-        }
         if (item !== null) {
             cells.push(
                 <td className="border px-1 py-1 w-14 h-14" key={`${item.name}-${index}`}>
@@ -40,7 +34,11 @@ const InventoryDisplay = ({inventory, equipped, handleEquipItem, gameId, isAtMer
                         className="w-full h-full object-cover"
                         onMouseEnter={() => openModal(item)}
                         onMouseLeave={closeModal}
-                        onClick={click_handler}
+                        onClick={() => handleEquipItem(item, gameId)}
+                        onContextMenu={(event) => {
+                            event.preventDefault(); // Prevents the context menu from showing
+                            handleSell(item, gameId);
+                        }}
                     />
                 </td>
             );
@@ -58,13 +56,13 @@ const InventoryDisplay = ({inventory, equipped, handleEquipItem, gameId, isAtMer
     return (
         <div className="p-0 rounded shadow-lg flex justify-between" style={{backgroundColor: "tan", color: "black"}}>
             <div className="ml-2">
-                <h2 className="font-bold text-lg mb-4">Inventory</h2>
+                <h2 className="font-bold text-lg mb-4">Inventory{isAtMerchant && " (Right Click to Sell)"}</h2>
                 <table className="table-auto w-full">
                     <tbody>{rows}</tbody>
                 </table>
             </div>
             {showModal && (
-                <div className="w-40 h-44 flex" onClick={closeModal}>
+                <div className="w-40 h-48 flex" onClick={closeModal}>
                     <div className="bg-white p-5 rounded-lg shadow-lg">
                         <p className="mt-4 text-sm font-bold">{modalContent.name}</p>
                         <p className="text-sm">
@@ -87,6 +85,8 @@ const InventoryDisplay = ({inventory, equipped, handleEquipItem, gameId, isAtMer
                                 {modalContent.dmg - equipped[modalContent.slot].dmg}
                             </span>)
                         </p>
+                        {isAtMerchant && <p className="text-sm">Sell: {modalContent.value}</p>}
+
                         <img src={modalContent.image} alt="Full size" height="50" width="50"/>
                     </div>
                 </div>

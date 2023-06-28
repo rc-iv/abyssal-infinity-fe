@@ -14,7 +14,7 @@ function MerchantDisplay({gameData, handleBuy}) {
                         <p className="text-lg font-bold">{item.name}</p>
                         <p>HP: {item.hp}</p>
                         <p>DMG: {item.dmg}</p>
-                        <p>Value: {item.value}</p>
+                        <p>Cost: {item.value} gold</p>
                         <button
                             onClick={() => handleBuy(item, gameData.id)}
                             className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
