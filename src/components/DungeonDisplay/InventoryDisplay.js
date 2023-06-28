@@ -24,7 +24,14 @@ const InventoryDisplay = ({inventory, equipped, handleEquipItem, gameId, isAtMer
     let rows = [];
     let cells = [];
 
+    let sell_click_handler;
+
     paddedInventory.forEach((item, index) => {
+        sell_click_handler = (event) => {
+            event.preventDefault(); // Prevents the context menu from showing
+            handleSell(item, gameId);
+            closeModal();
+        }
         if (item !== null) {
             cells.push(
                 <td className="border px-1 py-1 w-14 h-14" key={`${item.name}-${index}`}>
@@ -35,10 +42,7 @@ const InventoryDisplay = ({inventory, equipped, handleEquipItem, gameId, isAtMer
                         onMouseEnter={() => openModal(item)}
                         onMouseLeave={closeModal}
                         onClick={() => handleEquipItem(item, gameId)}
-                        onContextMenu={(event) => {
-                            event.preventDefault(); // Prevents the context menu from showing
-                            handleSell(item, gameId);
-                        }}
+                        onContextMenu={sell_click_handler}
                     />
                 </td>
             );
