@@ -13,8 +13,6 @@ function PlayerDisplay({playerData, style, handlePackItem, gameId, isAtMerchant,
     const closeModal = () => {
         setShowModal(false);
     };
-
-    console.log(`is at merchant: ${isAtMerchant}`);
     let click_handler = null;
 
     const equipped = playerData.equipped
@@ -22,7 +20,6 @@ function PlayerDisplay({playerData, style, handlePackItem, gameId, isAtMerchant,
     for (let key in equipped) {
 
         if (isAtMerchant) {
-            console.log("is at merchant")
             click_handler = () => handleSell(equipped[key], gameId)
         } else {
             click_handler = () => handlePackItem(equipped[key], gameId)

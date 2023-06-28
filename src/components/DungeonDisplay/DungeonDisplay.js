@@ -20,7 +20,6 @@ function DungeonDisplay({
     const availableDirections = [];
     const playerView = gameData.player_view;
     const center = Math.floor(playerView.length / 2);
-    console.log(`player : ${JSON.stringify(gameData.player)}`)
     if (playerView[center - 1][center] !== '#') availableDirections.push('north');
     if (playerView[center + 1][center] !== '#') availableDirections.push('south');
     if (playerView[center][center - 1] !== '#') availableDirections.push('west');

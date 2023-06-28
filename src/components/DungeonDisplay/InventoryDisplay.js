@@ -32,7 +32,6 @@ const InventoryDisplay = ({inventory, equipped, handleEquipItem, gameId, isAtMer
             click_handler = () => handleEquipItem(item, gameId)
         }
         if (item !== null) {
-            console.log(`item: ${item.name} img: ${item.image}`);
             cells.push(
                 <td className="border px-1 py-1 w-14 h-14" key={`${item.name}-${index}`}>
                     <img
@@ -55,8 +54,6 @@ const InventoryDisplay = ({inventory, equipped, handleEquipItem, gameId, isAtMer
             cells = [];
         }
     });
-
-    console.log(`rows[0]: ${rows[0]}`);
 
     return (
         <div className="p-0 rounded shadow-lg flex justify-between" style={{backgroundColor: "tan", color: "black"}}>
