@@ -1,8 +1,10 @@
 import React, {useState} from "react";
 
-const InventoryDisplay = ({inventory, equipped, handleEquipItem, gameId, isAtMerchant, handleSell}) => {
+const InventoryDisplay = ({player, handleEquipItem, isAtMerchant, handleSell}) => {
     const [showModal, setShowModal] = useState(false);
     const [modalContent, setModalContent] = useState("");
+    let inventory = player.inventory;
+    let equipped = player.equipped;
 
     // Create an array of 30 nulls
     let paddedInventory = new Array(30).fill(null);
@@ -29,7 +31,7 @@ const InventoryDisplay = ({inventory, equipped, handleEquipItem, gameId, isAtMer
     paddedInventory.forEach((item, index) => {
         sell_click_handler = (event) => {
             event.preventDefault(); // Prevents the context menu from showing
-            handleSell(item, gameId);
+            handleSell(item, player.id);
             closeModal();
         }
         if (item !== null) {
@@ -41,7 +43,7 @@ const InventoryDisplay = ({inventory, equipped, handleEquipItem, gameId, isAtMer
                         className="w-full h-full object-cover"
                         onMouseEnter={() => openModal(item)}
                         onMouseLeave={closeModal}
-                        onClick={() => handleEquipItem(item, gameId)}
+                        onClick={() => handleEquipItem(item, player.id)}
                         onContextMenu={sell_click_handler}
                     />
                 </td>

@@ -9,22 +9,26 @@ import MerchantDisplay from "./MerchantDisplay";
 const MemoizedLevelGrid = React.memo(LevelGrid);
 
 function DungeonDisplay({
-                            gameData, palette, handleMove,
+                            playerData, palette, handleMove,
                             isNextLevelAvailable, getNextLevel,
                             handleAttack, handleEquipItem,
                             handlePackItem, isLoadingNextLevel,
-                            handleHeal, handleSell, handleBuy
+                            handleHeal, handleSell, handleBuy,
+                            isMoving
                         }) {
+    const gameData = playerData.current_game;
     const levelData = gameData.level;
+
     // Calculate availableDirections...
     const availableDirections = [];
-    const playerView = gameData.player_view;
+    const playerView = playerData.player_view;
     const center = Math.floor(playerView.length / 2);
     if (playerView[center - 1][center] !== '#') availableDirections.push('north');
     if (playerView[center + 1][center] !== '#') availableDirections.push('south');
     if (playerView[center][center - 1] !== '#') availableDirections.push('west');
     if (playerView[center][center + 1] !== '#') availableDirections.push('east');
 
+    // initialize combat log and show if combat just ended
     let combat_log = [];
     if (gameData.combat_just_ended) {
         let combat_id = 0;
@@ -33,56 +37,60 @@ function DungeonDisplay({
         }
         combat_log = gameData.combat_log[combat_id - 1].combat_messages;
     }
+
+    // check if player is on a monster tile
     let monsterId = null;
     let monsterData = null;
-    const isMonsterTile = !isNaN(gameData.player_square_contents) && !(gameData.player_square_contents === "");
+    const isMonsterTile = !isNaN(playerData.player_square_contents) && !(playerData.player_square_contents === "");
     if (isMonsterTile) {
-        monsterId = parseInt(gameData.player_square_contents) - 1;
+        monsterId = parseInt(playerData.player_square_contents) - 1;
         monsterData = levelData.monsters[monsterId];
         // remove all exits, player must engage or retreat
         availableDirections.splice(0, availableDirections.length);
     }
-    const isHealerTile = gameData.player_square_contents === 'H';
-    const isMerchantTile = gameData.player_square_contents === 'M';
+    const isHealerTile = playerData.player_square_contents === 'H';
+    const isMerchantTile = playerData.player_square_contents === 'M';
 
     useEffect(() => {
         const handleKeyDown = (event) => {
-            switch (event.key) {
-                case 'ArrowUp':
-                    event.preventDefault();
-                    if (availableDirections.includes('north')) {
-                        handleMove('north');
-                    }
-                    break;
-                case 'ArrowRight':
-                    event.preventDefault();
-                    if (availableDirections.includes('east')) {
-                        handleMove('east');
-                    }
-                    break;
-                case 'ArrowDown':
-                    event.preventDefault();
-                    if (availableDirections.includes('south')) {
-                        handleMove('south');
-                    }
-                    break;
-                case 'ArrowLeft':
-                    event.preventDefault();
-                    if (availableDirections.includes('west')) {
-                        handleMove('west');
-                    }
-                    break;
-                case ' ':
-                    event.preventDefault();
-                    if (isNextLevelAvailable) {
-                        getNextLevel();
-                    }
-                    if (isMonsterTile) {
-                        handleAttack(monsterId);
-                    }
-                    break;
-                default:
-                    break;
+            if (!isMoving && !isLoadingNextLevel) {
+                switch (event.key) {
+                    case 'ArrowUp':
+                        event.preventDefault();
+                        if (availableDirections.includes('north')) {
+                            handleMove('north');
+                        }
+                        break;
+                    case 'ArrowRight':
+                        event.preventDefault();
+                        if (availableDirections.includes('east')) {
+                            handleMove('east');
+                        }
+                        break;
+                    case 'ArrowDown':
+                        event.preventDefault();
+                        if (availableDirections.includes('south')) {
+                            handleMove('south');
+                        }
+                        break;
+                    case 'ArrowLeft':
+                        event.preventDefault();
+                        if (availableDirections.includes('west')) {
+                            handleMove('west');
+                        }
+                        break;
+                    case ' ':
+                        event.preventDefault();
+                        if (isNextLevelAvailable) {
+                            getNextLevel();
+                        }
+                        if (isMonsterTile) {
+                            handleAttack(monsterId);
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -104,16 +112,13 @@ function DungeonDisplay({
              }}>
             <div className="flex flex-row items-center justify-between w-full">
                 <div style={{width: '33%', padding: '1em'}}>
-                    {gameData.player && <PlayerDisplay playerData={gameData.player}
-                                                       handlePackItem={handlePackItem}
-                                                       gameId={gameData.id}
-                                                       isAtMerchant={isMerchantTile}
-                                                       handleSell={handleSell}
-                    />}
-                    <InventoryDisplay inventory={gameData.player.inventory}
+                    <PlayerDisplay playerData={playerData}
+                                   handlePackItem={handlePackItem}
+                                   isAtMerchant={isMerchantTile}
+                                   handleSell={handleSell}
+                    />
+                    <InventoryDisplay player={playerData}
                                       handleEquipItem={handleEquipItem}
-                                      equipped={gameData.player.equipped}
-                                      gameId={gameData.id}
                                       isAtMerchant={isMerchantTile}
                                       handleSell={handleSell}
                     />
@@ -140,7 +145,7 @@ function DungeonDisplay({
                             color: palette.text_colors[1],
                             fontWeight: 'bold'
                         }}>{levelData.dungeon.backstory}</p>
-                        <MemoizedLevelGrid gridData={gameData.player_view} palette={palette}
+                        <MemoizedLevelGrid gridData={playerData.player_view} palette={palette}
                                            monsters={levelData.monsters}/>
                         <p>Monsters Remaining: {gameData.monsters_remaining}</p>
                     </div>
@@ -149,7 +154,7 @@ function DungeonDisplay({
                     {isHealerTile &&
                         <HealerDisplay
                             handleHeal={handleHeal}
-                            gameData={gameData}
+                            player={playerData}
                         />}
                     {isMerchantTile &&
                         <MerchantDisplay

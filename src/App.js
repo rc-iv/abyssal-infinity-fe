@@ -2,6 +2,8 @@ import axios from "axios";
 import {useState} from "react";
 import DungeonDisplay from "./components/DungeonDisplay/DungeonDisplay";
 import ReactModal from 'react-modal';
+import {v4 as uuidv4} from 'uuid';
+
 
 const server = "https://d76fab24d4c1.ngrok.app"
 
@@ -15,19 +17,23 @@ function App() {
     const [isGameOver, setIsGameOver] = useState(false);
     const [lastLevelCleared, setLastLevelCleared] = useState(0);
     const [combatLog, setCombatLog] = useState([]);
-    const [gameState, setGameState] = useState({
-        game: null,
+    const [isMoving, setIsMoving] = useState(false);
+    const [playerState, setPlayerState] = useState({
+        player: null,
         palette: {background_colors: [], text_colors: []},
     });
+
+    const userId = localStorage.getItem('userId') || uuidv4();
+    localStorage.setItem('userId', userId);
 
 
     async function createNewGame() {
         setIsLoading(true);
         try {
-            const res = await axios.post(`${server}/new-game`, {playerName});
-            setGameState({
-                game: res.data,
-                palette: res.data.level.dungeon.color_palette,
+            const res = await axios.post(`${server}/new-game`, {userId: userId, playerName: playerName});
+            setPlayerState({
+                player: res.data,
+                palette: res.data.current_game.level.dungeon.color_palette,
             });
             setGameStarted(true);
         } catch (error) {
@@ -39,19 +45,25 @@ function App() {
 
     async function handleMove(direction) {
         setIsLoading(true);
+        setIsMoving(true);
         try {
-            const res = await axios.post(`${server}/move`, {game_id: gameState.game.id, direction});
+            const res = await axios.post(`${server}/move`, {
+                userId: userId,
+                direction: direction,
+                player: playerState.player
+            });
             if (res.data.player_square_contents === 'X') {
-                setGameState((prevState) => ({...prevState, game: res.data}));
+                setPlayerState((prevState) => ({...prevState, player: res.data}));
                 setIsNextLevelAvailable(true);
             } else {
-                setGameState((prevState) => ({...prevState, game: res.data}));
+                setPlayerState((prevState) => ({...prevState, player: res.data}));
                 setIsNextLevelAvailable(false);
             }
         } catch (error) {
             console.error(error);
         } finally {
             setIsLoading(false);
+            setIsMoving(false);
         }
     }
 
@@ -59,10 +71,10 @@ function App() {
         setIsLoading(true);
         setIsLoadingNextLevel(true);
         try {
-            const res = await axios.post(`${server}/next-level`, {game_id: gameState.game.id});
-            setGameState({
-                game: res.data,
-                palette: res.data.level.dungeon.color_palette,
+            const res = await axios.post(`${server}/next-level`, {userId: userId, playerId: playerState.player.id});
+            setPlayerState({
+                player: res.data,
+                palette: res.data.current_game.level.dungeon.color_palette,
             });
         } catch (error) {
             console.error(error);
@@ -76,7 +88,8 @@ function App() {
         setIsLoading(true);
         try {
             const res = await axios.post(`${server}/attack`, {
-                game_id: gameState.game.id,
+                userId: userId,
+                playerId: playerState.player.id,
                 monster_id: monsterId
             });
             if (res.data.message === 'Game Over') {
@@ -87,7 +100,7 @@ function App() {
                 setPlayerName(''); // Reset player name
                 return;
             }
-            setGameState((prevState) => ({...prevState, game: res.data}));
+            setPlayerState((prevState) => ({...prevState, player: res.data}));
         } catch (error) {
             console.error(error);
         } finally {
@@ -95,11 +108,11 @@ function App() {
         }
     }
 
-    async function handleEquipItem(item, gameId) {
+    async function handleEquipItem(item, playerId) {
         setIsLoading(true);
         try {
-            const res = await axios.post(`${server}/equip-item`, {item, gameId});
-            setGameState((prevState) => ({...prevState, game: res.data}));
+            const res = await axios.post(`${server}/equip-item`, {item: item, playerId: playerId, userId: userId});
+            setPlayerState((prevState) => ({...prevState, player: res.data}));
         } catch (error) {
             console.error(error);
         } finally {
@@ -107,11 +120,11 @@ function App() {
         }
     }
 
-    async function handlePackItem(item, gameId) {
+    async function handlePackItem(item, playerId) {
         setIsLoading(true);
         try {
-            const res = await axios.post(`${server}/pack-item`, {item, gameId});
-            setGameState((prevState) => ({...prevState, game: res.data}));
+            const res = await axios.post(`${server}/pack-item`, {item: item, playerId: playerId, userId: userId});
+            setPlayerState((prevState) => ({...prevState, player: res.data}));
         } catch (error) {
             console.error(error);
         } finally {
@@ -119,11 +132,11 @@ function App() {
         }
     }
 
-    async function handleHeal(gameId) {
+    async function handleHeal(playerId) {
         setIsLoading(true);
         try {
-            const res = await axios.post(`${server}/heal`, {game_id: gameId});
-            setGameState((prevState) => ({...prevState, game: res.data}));
+            const res = await axios.post(`${server}/heal`, {playerId: playerId, userId: userId});
+            setPlayerState((prevState) => ({...prevState, player: res.data}));
         } catch (error) {
             console.error(error);
         } finally {
@@ -131,11 +144,11 @@ function App() {
         }
     }
 
-    async function handleSell(item, gameId) {
+    async function handleSell(item, playerId) {
         setIsLoading(true);
         try {
-            const res = await axios.post(`${server}/sell`, {gameId: gameId, item: item});
-            setGameState((prevState) => ({...prevState, game: res.data}));
+            const res = await axios.post(`${server}/sell`, {playerId: playerId, item: item, userId: userId});
+            setPlayerState((prevState) => ({...prevState, player: res.data}));
         } catch (error) {
             console.error(error);
         } finally {
@@ -147,13 +160,14 @@ function App() {
         setIsLoading(true);
         try {
             const res = await axios.post(`${server}/buy`, {gameId: gameId, item: item});
-            setGameState((prevState) => ({...prevState, game: res.data}));
+            setPlayerState((prevState) => ({...prevState, game: res.data}));
         } catch (error) {
             console.error(error);
         } finally {
             setIsLoading(false);
         }
     }
+
     return (
         <div
             className="App bg-gradient-to-r from-black to-gray-900 text-white min-h-screen flex flex-col justify-center items-center">
@@ -162,8 +176,8 @@ function App() {
             </header>
             {gameStarted ?
                 <>
-                    {<DungeonDisplay gameData={gameState.game}
-                                     palette={gameState.palette}
+                    {<DungeonDisplay playerData={playerState.player}
+                                     palette={playerState.palette}
                                      handleMove={handleMove}
                                      isNextLevelAvailable={isNextLevelAvailable}
                                      getNextLevel={getNextLevel}
@@ -175,6 +189,7 @@ function App() {
                                      handleHeal={handleHeal}
                                      handleBuy={handleBuy}
                                      handleSell={handleSell}
+                                     isMoving={isMoving}
                     />}
                 </> :
                 isLoading ?

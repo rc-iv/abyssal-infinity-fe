@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 
-function PlayerDisplay({playerData, style, handlePackItem, gameId, isAtMerchant, handleSell}) {
+function PlayerDisplay({playerData, style, handlePackItem, isAtMerchant, handleSell}) {
     const [showModal, setShowModal] = useState(false);
     const [modalContent, setModalContent] = useState({});
 
@@ -20,9 +20,9 @@ function PlayerDisplay({playerData, style, handlePackItem, gameId, isAtMerchant,
     for (let key in equipped) {
 
         if (isAtMerchant) {
-            click_handler = () => handleSell(equipped[key], gameId)
+            click_handler = () => handleSell(equipped[key], playerData.id)
         } else {
-            click_handler = () => handlePackItem(equipped[key], gameId)
+            click_handler = () => handlePackItem(equipped[key], playerData.id)
         }
         equippedItems[key] = (
             <div key={key} className="ml-4 flex flex-col items-center">

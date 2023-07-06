@@ -1,14 +1,14 @@
 import React, {useEffect} from 'react';
 
-function HealerDisplay({gameData, handleHeal}) {
-    const heal_cost = gameData.player.heals_used * 100;
-    const can_afford_healing = gameData.player.gold >= heal_cost;
+function HealerDisplay({player, handleHeal}) {
+    const heal_cost = player.heals_used * 100;
+    const can_afford_healing = player.gold >= heal_cost;
     useEffect(() => {
         const handleKeyDown = (event) => {
             switch (event.key) {
                 case 'h':
                     event.preventDefault();
-                    handleHeal(gameData.id);
+                    handleHeal(player.id);
                     break;
                 default:
                     break;
@@ -31,7 +31,7 @@ function HealerDisplay({gameData, handleHeal}) {
                 <p>.</p>
                 <button
                     className="absolute bottom-0 left-0 m-2 py-1 px-3 bg-blue-500 text-white rounded hover:bg-blue-700"
-                    onClick={() => handleHeal(gameData.id)}>(H)eal
+                    onClick={() => handleHeal(player.id)}>(H)eal
                 </button>
             </div>
             }
