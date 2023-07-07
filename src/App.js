@@ -5,9 +5,10 @@ import ReactModal from 'react-modal';
 import {v4 as uuidv4} from 'uuid';
 
 
-const server = "https://d76fab24d4c1.ngrok.app"
+const server = "https://kzspbg2hxd.execute-api.us-east-1.amazonaws.com/Prod";
 
-//const server = "http://localhost:5000";
+// const server = "http://127.0.0.1:5050";
+
 function App() {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingNextLevel, setIsLoadingNextLevel] = useState(false);
@@ -22,13 +23,14 @@ function App() {
         player: null,
         palette: {background_colors: [], text_colors: []},
     });
-
-    const userId = localStorage.getItem('userId') || uuidv4();
-    localStorage.setItem('userId', userId);
-
-
+    let userId = localStorage.getItem('userId');
     async function createNewGame() {
         setIsLoading(true);
+        userId = localStorage.getItem('userId');
+        if (!userId) {
+            userId = uuidv4();
+            localStorage.setItem('userId', userId);
+        }
         try {
             const res = await axios.post(`${server}/new-game`, {userId: userId, playerName: playerName});
             setPlayerState({
@@ -42,6 +44,7 @@ function App() {
             setIsLoading(false);
         }
     }
+
 
     async function handleMove(direction) {
         setIsLoading(true);

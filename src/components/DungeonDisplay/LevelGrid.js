@@ -1,30 +1,30 @@
 import React from 'react';
 
-const NGROK_PATH = 'https://d76fab24d4c1.ngrok.app';
+const AWS_S3_PATH = 'https://abyssal-infinity-images.s3.amazonaws.com';
 const LevelGrid = ({gridData, palette, monsters}) => {
     const gridClass = `grid grid-cols-5 mb-4 w-64 text-xl`;
     const getImageSrc = (cell) => {
         switch (cell) {
             case "#":
-                return `${NGROK_PATH}/api/images/board/wall.png`;
+                return `${AWS_S3_PATH}/images/board/wall.png`;
             case "":
-                return `${NGROK_PATH}/api/images/board/floor.png`;
+                return `${AWS_S3_PATH}/images/board/floor.png`;
             case "O":
-                return `${NGROK_PATH}/api/images/board/player.png`; // replace with your player image URL
+                return `${AWS_S3_PATH}/images/board/player.png`; // replace with your player image URL
             case "E":
-                return `${NGROK_PATH}/api/images/board/entry_portal.png`;
+                return `${AWS_S3_PATH}/images/board/entry_portal.png`;
             case "X":
-                return `${NGROK_PATH}/api/images/board/exit_portal.png`;
+                return `${AWS_S3_PATH}/images/board/exit_portal.png`;
             case "H":
-                return `${NGROK_PATH}/api/images/board/healer.png`;
+                return `${AWS_S3_PATH}/images/board/healer.png`;
             case "M":
-                return `${NGROK_PATH}/api/images/board/merchant.png`;
+                return `${AWS_S3_PATH}/images/board/merchant.png`;
             default:
                 if (!isNaN(cell)) {
                     const cell_int = parseInt(cell) - 1;
                     const imageURL = monsters[cell_int].imageURL;
                     if (imageURL === null) {
-                        return "https://d76fab24d4c1.ngrok.app/api/images/monsters/skull.png";
+                        return `${AWS_S3_PATH}/images/monsters/skull.png`;
                     }
                     return monsters[cell_int].imageURL;
                 }

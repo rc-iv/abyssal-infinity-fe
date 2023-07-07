@@ -19,14 +19,9 @@ function DungeonDisplay({
     const gameData = playerData.current_game;
     const levelData = gameData.level;
 
-    // Calculate availableDirections...
-    const availableDirections = [];
     const playerView = playerData.player_view;
     const center = Math.floor(playerView.length / 2);
-    if (playerView[center - 1][center] !== '#') availableDirections.push('north');
-    if (playerView[center + 1][center] !== '#') availableDirections.push('south');
-    if (playerView[center][center - 1] !== '#') availableDirections.push('west');
-    if (playerView[center][center + 1] !== '#') availableDirections.push('east');
+
 
     // initialize combat log and show if combat just ended
     let combat_log = [];
@@ -45,13 +40,21 @@ function DungeonDisplay({
     if (isMonsterTile) {
         monsterId = parseInt(playerData.player_square_contents) - 1;
         monsterData = levelData.monsters[monsterId];
-        // remove all exits, player must engage or retreat
-        availableDirections.splice(0, availableDirections.length);
+
     }
     const isHealerTile = playerData.player_square_contents === 'H';
     const isMerchantTile = playerData.player_square_contents === 'M';
 
     useEffect(() => {
+        let availableDirections = [];
+        if (playerView[center - 1][center] !== '#') availableDirections.push('north');
+        if (playerView[center + 1][center] !== '#') availableDirections.push('south');
+        if (playerView[center][center - 1] !== '#') availableDirections.push('west');
+        if (playerView[center][center + 1] !== '#') availableDirections.push('east');
+        if (isMonsterTile) {
+            // remove all exits, player must engage or retreat
+            availableDirections.splice(0, availableDirections.length);
+        }
         const handleKeyDown = (event) => {
             if (!isMoving && !isLoadingNextLevel) {
                 switch (event.key) {
@@ -99,7 +102,7 @@ function DungeonDisplay({
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [handleMove, availableDirections, getNextLevel, isNextLevelAvailable, handleAttack, isMonsterTile, monsterId]);
+    }, [handleMove, getNextLevel, isNextLevelAvailable, handleAttack, isMonsterTile, monsterId, isLoadingNextLevel, isMoving, center, playerView]);
     return (
         <div className="p-4 bg-gray-100 rounded shadow-md"
              style={{

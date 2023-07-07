@@ -20,7 +20,7 @@ function HealerDisplay({player, handleHeal}) {
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
         };
-    }, [handleHeal]);
+    }, [handleHeal, player.id]);
     return (
         <div className="p-4 bg-red-800 rounded shadow-md relative">
             <h3 className="text-xl font-bold mb-2">Mystical Healer</h3>
