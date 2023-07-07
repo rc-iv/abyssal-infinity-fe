@@ -7,8 +7,6 @@ import {v4 as uuidv4} from 'uuid';
 
 const server = "https://kzspbg2hxd.execute-api.us-east-1.amazonaws.com/Prod";
 
-// const server = "http://127.0.0.1:5050";
-
 function App() {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingNextLevel, setIsLoadingNextLevel] = useState(false);
@@ -150,7 +148,7 @@ function App() {
     async function handleSell(item, playerId) {
         setIsLoading(true);
         try {
-            const res = await axios.post(`${server}/sell`, {playerId: playerId, item: item, userId: userId});
+            const res = await axios.post(`${server}/sell`, {userId: userId, playerId: playerState.player.id, item: item});
             setPlayerState((prevState) => ({...prevState, player: res.data}));
         } catch (error) {
             console.error(error);
@@ -159,10 +157,10 @@ function App() {
         }
     }
 
-    async function handleBuy(item, gameId) {
+    async function handleBuy(item) {
         setIsLoading(true);
         try {
-            const res = await axios.post(`${server}/buy`, {gameId: gameId, item: item});
+            const res = await axios.post(`${server}/buy`, {userId: userId, playerId: playerState.player.id, item: item});
             setPlayerState((prevState) => ({...prevState, game: res.data}));
         } catch (error) {
             console.error(error);
