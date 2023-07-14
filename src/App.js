@@ -1,11 +1,11 @@
-import axios from "axios";
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import DungeonDisplay from "./components/DungeonDisplay/DungeonDisplay";
 import ReactModal from 'react-modal';
 import {v4 as uuidv4} from 'uuid';
 
 
-const server = "https://kzspbg2hxd.execute-api.us-east-1.amazonaws.com/Prod";
+const socketUrl = "wss://gevfj6kknf.execute-api.us-east-1.amazonaws.com/production";
+
 
 function App() {
     const [isLoading, setIsLoading] = useState(false);
@@ -21,209 +21,242 @@ function App() {
         player: null,
         palette: {background_colors: [], text_colors: []},
     });
+    const [socketStatus, setSocketStatus] = useState("Connecting...");
+    const [socket, setSocket] = useState(null);
+
     let userId = localStorage.getItem('userId');
-    async function createNewGame() {
+    if (!userId) {
+        userId = uuidv4();
+        localStorage.setItem('userId', userId);
+    }
+
+    useEffect(() => {
+        try {
+            const ws = new WebSocket(socketUrl);
+
+            ws.onopen = () => {
+                setSocketStatus("Connected");
+                setSocket(ws);
+            };
+
+            ws.onclose = () => {
+                setSocketStatus("Disconnected");
+                setSocket(null);
+            };
+
+            ws.onerror = (error) => {
+                console.log("WebSocket error:", error);
+                setSocketStatus("Connection failed");
+                setSocket(null);
+            };
+
+            ws.onmessage = (message) => {
+                console.log("Received message:", message);
+                let action = JSON.parse(message.data).message.action;
+                console.log(`Action: ${JSON.stringify(action)}`);
+                let data = JSON.parse(message.data).message.data;
+                console.log(`Data: ${JSON.stringify(data)}`);
+                let status = data.status;
+                console.log(`Status: ${JSON.stringify(status)}`);
+                if (status === '400') {
+                    alert(data.message);
+                    setIsLoading(false);
+                    setIsLoadingNextLevel(false);
+                    setIsMoving(false);
+                } else {
+                    switch (action) {
+                        case 'newGame':
+                            // handle new game response
+                            setPlayerState({
+                                player: data,
+                                palette: data.current_game.level.dungeon.color_palette,
+                            });
+                            setGameStarted(true);
+                            setIsLoading(false);
+                            break;
+                        case 'move':
+                            // handle move response
+                            if (data.player_square_contents === 'X') {
+                                setIsNextLevelAvailable(true);
+                            }
+                            setPlayerState((prevState) => ({...prevState, player: data}));
+                            setIsMoving(false);
+                            setIsLoading(false);
+                            break;
+                        case 'nextLevel':
+                            // handle next level response
+                            setIsLoading(false);
+                            setIsLoadingNextLevel(false);
+                            setPlayerState((prevState) => ({...prevState, player: data}));
+                            break;
+                        case 'attack':
+                            // handle attack response
+                            setIsLoading(false);
+                            if (data.message === 'Game Over') {
+                                setIsGameOver(true);
+                                setLastLevelCleared(data.last_level_cleared)
+                                setCombatLog(data.combat_log);
+                                setGameStarted(false);
+                                setPlayerName('');
+                            }
+                            setPlayerState((prevState) => ({...prevState, player: data}));
+                            break;
+                        case 'equipItem':
+                            // handle equip item response
+                            setIsLoading(false);
+                            setPlayerState((prevState) => ({...prevState, player: data}));
+                        case 'packItem':
+                            // handle pack item response
+                            setIsLoading(false);
+                            setPlayerState((prevState) => ({...prevState, player: data}));
+                        case 'heal':
+                            // handle heal response
+                            setIsLoading(false);
+                            setPlayerState((prevState) => ({...prevState, player: data}));
+                        case 'sell':
+                            // handle sell response
+                            setIsLoading(false);
+                            setPlayerState((prevState) => ({...prevState, player: data}));
+                        case 'buy':
+                            // handle buy response
+                            setIsLoading(false);
+                            setPlayerState((prevState) => ({...prevState, player: data}));
+                        default:
+                            console.log(`Unknown action: ${action}`);
+                            break;
+                    }
+                }
+            };
+        } catch (error) {
+            console.log("Failed to connect to WebSocket:", error);
+            setSocketStatus("Connection failed");
+        }
+    }, [socketStatus]);
+
+    function sendMessage(action, data) {
+        if (socket) {
+            console.log(socket);
+            const message = JSON.stringify({
+                action: action,
+                data: data
+            });
+            socket.send(message);
+        }
+    };
+
+    function createNewGame() {
         setIsLoading(true);
         userId = localStorage.getItem('userId');
         if (!userId) {
             userId = uuidv4();
             localStorage.setItem('userId', userId);
         }
-        try {
-            const res = await axios.post(`${server}/new-game`, {userId: userId, playerName: playerName});
-            setPlayerState({
-                player: res.data,
-                palette: res.data.current_game.level.dungeon.color_palette,
-            });
-            setGameStarted(true);
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
+        console.log(`Creating new game with id ${userId}`)
+        sendMessage("newGame", {playerName: playerName, userId: userId})
     }
 
-
-    async function handleMove(direction) {
+    function handleMove(direction) {
         setIsLoading(true);
         setIsMoving(true);
-        try {
-            const res = await axios.post(`${server}/move`, {
-                userId: userId,
-                direction: direction,
-                player: playerState.player
-            });
-            if (res.data.player_square_contents === 'X') {
-                setPlayerState((prevState) => ({...prevState, player: res.data}));
-                setIsNextLevelAvailable(true);
-            } else {
-                setPlayerState((prevState) => ({...prevState, player: res.data}));
-                setIsNextLevelAvailable(false);
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-            setIsMoving(false);
-        }
+        sendMessage("move", {direction: direction, player: playerState.player})
     }
 
-    async function getNextLevel() {
+    function getNextLevel() {
         setIsLoading(true);
         setIsLoadingNextLevel(true);
-        try {
-            const res = await axios.post(`${server}/next-level`, {userId: userId, playerId: playerState.player.id});
-            setPlayerState({
-                player: res.data,
-                palette: res.data.current_game.level.dungeon.color_palette,
-            });
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-            setIsLoadingNextLevel(false);
-        }
+        sendMessage("nextLevel", {userId: userId, player: playerState.player})
     }
 
-    async function handleAttack(monsterId) {
+    function handleAttack(monsterId) {
         setIsLoading(true);
-        try {
-            const res = await axios.post(`${server}/attack`, {
-                userId: userId,
-                playerId: playerState.player.id,
-                monster_id: monsterId
-            });
-            if (res.data.message === 'Game Over') {
-                setIsGameOver(true);
-                setLastLevelCleared(res.data.last_level_cleared)
-                setCombatLog(res.data.combat_log);
-                setGameStarted(false);
-                setPlayerName(''); // Reset player name
-                return;
-            }
-            setPlayerState((prevState) => ({...prevState, player: res.data}));
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
+        sendMessage("attack", {monsterId: monsterId, player: playerState.player})
     }
 
     async function handleEquipItem(item, playerId) {
         setIsLoading(true);
-        try {
-            const res = await axios.post(`${server}/equip-item`, {item: item, playerId: playerId, userId: userId});
-            setPlayerState((prevState) => ({...prevState, player: res.data}));
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
+        sendMessage("equipItem", {item: item, player: playerState.player});
     }
 
     async function handlePackItem(item, playerId) {
         setIsLoading(true);
-        try {
-            const res = await axios.post(`${server}/pack-item`, {item: item, playerId: playerId, userId: userId});
-            setPlayerState((prevState) => ({...prevState, player: res.data}));
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
+        sendMessage("packItem", {item: item, player: playerState.player});
     }
 
     async function handleHeal(playerId) {
         setIsLoading(true);
-        try {
-            const res = await axios.post(`${server}/heal`, {playerId: playerId, userId: userId});
-            setPlayerState((prevState) => ({...prevState, player: res.data}));
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
+        sendMessage("heal", {player: playerState.player});
     }
 
     async function handleSell(item, playerId) {
         setIsLoading(true);
-        try {
-            const res = await axios.post(`${server}/sell`, {userId: userId, playerId: playerState.player.id, item: item});
-            setPlayerState((prevState) => ({...prevState, player: res.data}));
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
+        sendMessage("sell", {item: item, player: playerState.player});
     }
 
     async function handleBuy(item) {
         setIsLoading(true);
-        try {
-            const res = await axios.post(`${server}/buy`, {userId: userId, playerId: playerState.player.id, item: item});
-            setPlayerState((prevState) => ({...prevState, game: res.data}));
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setIsLoading(false);
-        }
+        sendMessage("buy", {item: item, player: playerState.player});
     }
 
     return (
         <div
-            className="App bg-gradient-to-r from-black to-gray-900 text-white min-h-screen flex flex-col justify-center items-center">
+            className="App bg-gradient-to-r from-black to-gray-900 min-h-screen flex flex-col justify-center items-center">
             <header className="App-header mb-8">
-                <h1 className="text-6xl font-bold">Abyssal Infinity</h1>
+                <h1 className="text-6xl font-bold text-white">Abyssal Infinity</h1>
             </header>
-            {gameStarted ?
+
+            {/* Check if the user has registered and the game has started */}
+            {gameStarted ? (
                 <>
-                    {<DungeonDisplay playerData={playerState.player}
-                                     palette={playerState.palette}
-                                     handleMove={handleMove}
-                                     isNextLevelAvailable={isNextLevelAvailable}
-                                     getNextLevel={getNextLevel}
-                                     isLoading={isLoading}
-                                     handleAttack={handleAttack}
-                                     handleEquipItem={handleEquipItem}
-                                     handlePackItem={handlePackItem}
-                                     isLoadingNextLevel={isLoadingNextLevel}
-                                     handleHeal={handleHeal}
-                                     handleBuy={handleBuy}
-                                     handleSell={handleSell}
-                                     isMoving={isMoving}
-                    />}
-                </> :
-                isLoading ?
-                    //center this div
-                    <div className="flex flex-col justify-center items-center">
-                        <img src={`${process.env.PUBLIC_URL}/spinner.gif`} alt="Loading..."
-                             className="w-12 h-12 animate-spin"/>
-                    </div>
-                    :
-                    <>
-                        <input
-                            type="text"
-                            placeholder="Enter your player name"
-                            value={playerName}
-                            onChange={e => setPlayerName(e.target.value)}
-                            className="mb-4 px-2 py-1 rounded border-gray-700 text-black"
-                        />
-                        <button
-                            onClick={createNewGame}
-                            className="px-8 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded"
-                            disabled={!playerName}  // Disable the button if no player name
-                        >
-                            Create New Game
-                        </button>
-                    </>
-            }
+                    <DungeonDisplay
+                        playerData={playerState.player}
+                        palette={playerState.palette}
+                        handleMove={handleMove}
+                        isNextLevelAvailable={isNextLevelAvailable}
+                        getNextLevel={getNextLevel}
+                        isLoading={isLoading}
+                        handleAttack={handleAttack}
+                        handleEquipItem={handleEquipItem}
+                        handlePackItem={handlePackItem}
+                        isLoadingNextLevel={isLoadingNextLevel}
+                        handleHeal={handleHeal}
+                        handleBuy={handleBuy}
+                        handleSell={handleSell}
+                        isMoving={isMoving}
+                    />
+                </>
+            ) : isLoading ? (
+                <div className="flex flex-col justify-center items-center">
+                    <img src={`${process.env.PUBLIC_URL}/spinner.gif`} alt="Loading..."
+                         className="w-12 h-12 animate-spin"/>
+                </div>
+            ) : (
+                <>
+                    <input
+                        type="text"
+                        placeholder="Enter your player name"
+                        value={playerName}
+                        onChange={e => setPlayerName(e.target.value)}
+                        className="mb-4 px-2 py-1 rounded border-gray-700 text-black"
+                    />
+                    <button
+                        onClick={createNewGame}
+                        className="px-8 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded"
+                        disabled={!playerName}
+                    >
+                        Create New Game
+                    </button>
+                </>
+            )}
+
             <ReactModal isOpen={isGameOver}>
                 <h2>Game Over</h2>
                 <p>Last Level cleared: {lastLevelCleared}</p>
                 {combatLog.map((log, index) => <p key={index}>{log}</p>)}
                 <button
                     className="absolute bottom-0 left-0 m-2 py-1 px-3 bg-blue-500 text-white rounded hover:bg-blue-700"
-                    onClick={() => setIsGameOver(false)}>Close
+                    onClick={() => setIsGameOver(false)}
+                >
+                    Close
                 </button>
             </ReactModal>
         </div>

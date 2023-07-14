@@ -22,15 +22,12 @@ function DungeonDisplay({
     const playerView = playerData.player_view;
     const center = Math.floor(playerView.length / 2);
 
-
-    // initialize combat log and show if combat just ended
-    let combat_log = [];
+    let combat_log;
     if (gameData.combat_just_ended) {
-        let combat_id = 0;
-        while (gameData.combat_log[combat_id]) {
-            combat_id++;
-        }
-        combat_log = gameData.combat_log[combat_id - 1].combat_messages;
+        // initialize combat log and show if combat just ended
+        combat_log = gameData.combat_log;
+        let key = Object.keys(combat_log).length -1;
+        combat_log = gameData.combat_log[key].combat_messages;
     }
 
     // check if player is on a monster tile
