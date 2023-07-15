@@ -112,7 +112,12 @@ function App() {
                         case 'heal':
                             // handle heal response
                             setIsLoading(false);
-                            setPlayerState((prevState) => ({...prevState, player: data}));
+                            if (data.status == '600') {
+                                alert(data.message);
+                            } else {
+                                setPlayerState((prevState) => ({...prevState, player: data}));
+                            }
+                            break;
                         case 'sell':
                             // handle sell response
                             setIsLoading(false);
@@ -120,7 +125,12 @@ function App() {
                         case 'buy':
                             // handle buy response
                             setIsLoading(false);
-                            setPlayerState((prevState) => ({...prevState, player: data}));
+                            if (data.status == '600') {
+                                alert(data.message);
+                            } else {
+                                setPlayerState((prevState) => ({...prevState, player: data}));
+                            }
+                            break;
                         default:
                             console.log(`Unknown action: ${action}`);
                             break;
