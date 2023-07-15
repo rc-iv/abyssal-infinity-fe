@@ -79,6 +79,7 @@ function App() {
                             if (data.player_square_contents === 'X') {
                                 setIsNextLevelAvailable(true);
                             }
+
                             setPlayerState((prevState) => ({...prevState, player: data}));
                             setIsMoving(false);
                             setIsLoading(false);
@@ -87,6 +88,7 @@ function App() {
                             // handle next level response
                             setIsLoading(false);
                             setIsLoadingNextLevel(false);
+                            setIsNextLevelAvailable(false);
                             setPlayerState((prevState) => ({...prevState, player: data}));
                             break;
                         case 'attack':
