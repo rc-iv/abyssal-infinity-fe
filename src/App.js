@@ -121,7 +121,12 @@ function App() {
                         case 'sell':
                             // handle sell response
                             setIsLoading(false);
-                            setPlayerState((prevState) => ({...prevState, player: data}));
+                            if (data.status == '600') {
+                                alert(data.message);
+                            } else {
+                                setPlayerState((prevState) => ({...prevState, player: data}));
+                            }
+                            break;
                         case 'buy':
                             // handle buy response
                             setIsLoading(false);
