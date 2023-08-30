@@ -138,6 +138,8 @@ function App() {
                                 setPlayerState((prevState) => ({...prevState, player: data}));
                             }
                             break;
+                        case 'warmup':
+                            break;
                         default:
                             console.log(`Unknown action: ${action}`);
                             break;
