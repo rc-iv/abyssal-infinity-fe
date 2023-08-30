@@ -169,49 +169,62 @@ function App() {
             localStorage.setItem('userId', userId);
         }
         console.log(`Creating new game with id ${userId}`)
-        sendMessage("newGame", {playerName: playerName, userId: userId})
+        warmUpLambdas();
+        sendMessage("newGame", {playerName: playerName, userId: userId, warmup: false})
     }
 
     function handleMove(direction) {
         setIsLoading(true);
         setIsMoving(true);
-        sendMessage("move", {direction: direction, player: playerState.player})
+        sendMessage("move", {direction: direction, player: playerState.player, warmup: false})
     }
 
     function getNextLevel() {
         setIsLoading(true);
         setIsLoadingNextLevel(true);
-        sendMessage("nextLevel", {userId: userId, player: playerState.player})
+        sendMessage("nextLevel", {userId: userId, player: playerState.player, warmup: false})
     }
 
     function handleAttack(monsterId) {
         setIsLoading(true);
-        sendMessage("attack", {monsterId: monsterId, player: playerState.player})
+        sendMessage("attack", {monsterId: monsterId, player: playerState.player, warmup: false})
     }
 
     async function handleEquipItem(item, playerId) {
         setIsLoading(true);
-        sendMessage("equipItem", {item: item, player: playerState.player});
+        sendMessage("equipItem", {item: item, player: playerState.player, warmup: false});
     }
 
     async function handlePackItem(item, playerId) {
         setIsLoading(true);
-        sendMessage("packItem", {item: item, player: playerState.player});
+        sendMessage("packItem", {item: item, player: playerState.player, warmup: false});
     }
 
     async function handleHeal(playerId) {
         setIsLoading(true);
-        sendMessage("heal", {player: playerState.player});
+        sendMessage("heal", {player: playerState.player, warmup: false});
     }
 
     async function handleSell(item, playerId) {
         setIsLoading(true);
-        sendMessage("sell", {item: item, player: playerState.player});
+        sendMessage("sell", {item: item, player: playerState.player, warmup: false});
     }
 
     async function handleBuy(item) {
         setIsLoading(true);
-        sendMessage("buy", {item: item, player: playerState.player});
+        sendMessage("buy", {item: item, player: playerState.player, warmup: false});
+    }
+
+    async function warmUpLambdas() {
+        const function_lambdas = ["move", "nextLevel", "attack", "equipItem", "packItem", "heal", "sell", "buy"]
+        for (let functionName in function_lambdas) {
+            try {
+                await sendMessage(functionName, {warmup: true});
+                console.log(`Lambda ${functionName} warmed up`);
+            } catch (error) {
+                console.error(`Failed to warm up ${functionName}:`, error);
+            }
+        }
     }
 
     return (
