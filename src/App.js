@@ -56,8 +56,11 @@ function App() {
                 console.log(`Action: ${JSON.stringify(action)}`);
                 let data = JSON.parse(message.data).message.data;
                 console.log(`Data: ${JSON.stringify(data)}`);
-                let status = data.status;
-                console.log(`Status: ${JSON.stringify(status)}`);
+                let status = 200;
+                if (data !== null) {
+                    status = data.status;
+                    console.log(`Status: ${JSON.stringify(status)}`);
+                }
                 if (status === '400') {
                     alert(data.message);
                     setIsLoading(false);
