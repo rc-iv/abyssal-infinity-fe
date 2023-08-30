@@ -192,7 +192,7 @@ function App() {
 
     function handleAttack(monsterId) {
         setIsLoading(true);
-        sendMessage("attack", {monsterId: monsterId, player: playerState.player, warmup: false})
+        sendMessage("attack", {monsterId: monsterId, player: playerState.player, userId: userId, warmup: false})
     }
 
     async function handleEquipItem(item, playerId) {
