@@ -217,7 +217,7 @@ function App() {
 
     async function warmUpLambdas() {
         const function_lambdas = ["move", "nextLevel", "attack", "equipItem", "packItem", "heal", "sell", "buy"]
-        for (let functionName in function_lambdas) {
+        for (const functionName of function_lambdas) {
             try {
                 await sendMessage(functionName, {warmup: true});
                 console.log(`Lambda ${functionName} warmed up`);
